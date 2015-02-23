@@ -2,34 +2,36 @@
  * Module dependencies.
  */
 
-var express = 
-	require('express'), 
-	http = require('http'), 
-	path = require('path'), 
-	robots = require('robots.txt'),
-	favicon = require('serve-favicon'),
-	
-	routes = require('./routes'), 
-	user = require('./routes/user');
+var express = require('express'); 
+var http = require('http'); 
+var path = require('path'); 
+var robots = require('robots.txt');
+var morgan = require('morgan');
+var favicon = require('serve-favicon');
+var methodOverride = require('method-override');
+var errorHandler = require('errorhandler');
+
+var routes = require('./routes');
+var user = require('./routes/user');
 
 var app = express();
 
+// configuration value
+var oneDay = 86400000;
+
 // all environments
-app.set('port', process.env.PORT || 3003);
-app.set('views', __dirname + '/views');
+app.set('port', process.env.PORT || 3006);
+app.set('views', path.join(__dirname, '/views'));
 app.set('view engine', 'jade');
-//app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: 86400 }));
-app.use(favicon(path.join(__dirname, 'public' ,'favicon.ico'))); 
+app.use(morgan('dev'));
+app.use(methodOverride());
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: oneDay }));
+app.use(favicon(path.join(__dirname, 'public' , 'favicon.ico'))); 
 app.use(robots(path.join(__dirname, 'public' , 'robots.txt')));
 
 // development only
 if ('development' == app.get('env')) {
-	app.use(express.errorHandler());
+	app.use(errorHandler());
 }
 
 app.get('/', routes.index);
